@@ -28,7 +28,7 @@
                         <configuration>
                             <proc>only</proc>
                             <annotationProcessors>
-                                <annotationProcessor>edu.school21.cjettie.annotations.HtmlProcessor</annotationProcessor>
+                                <annotationProcessor>edu.school21.cjettie.repositories.OrmManager</annotationProcessor>
                             </annotationProcessors>
                         </configuration>
                     </execution>
