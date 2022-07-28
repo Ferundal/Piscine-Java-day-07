@@ -41,71 +41,76 @@ public class Program {
     }
 
     private static Object createNewObject( Object currentClass) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        System.out.println("Let's create an object.");
         Constructor [] constructors = currentClass.getClass().getConstructors();
-        Parameter[] parameters = constructors[constructors.length - 1].getParameters();
-        List<Object>constructorInputParameters = new ArrayList<Object>();
-        for (int counter = 0; counter < parameters.length; ++counter) {
-            System.out.println(parameters[counter].getName());
-            Object currentObject = new Object();
-            switch (parameters[counter].getType().getSimpleName().toLowerCase()) {
-                case "string":
-                    currentObject = console.nextLine();
-                    break;
-                case "int":
-                case "integer":
-                    currentObject = console.nextInt();
-                    break;
-                case "long":
-                    currentObject = console.nextLong();
-                    break;
-                case "double":
-                    currentObject = console.nextDouble();
-                    break;
-                case "float":
-                    currentObject = console.nextFloat();
-                    break;
-                case "char":
-                case "character":
-                    currentObject = console.next();
-                    break;
+        Constructor constructor = null;
+        for (int counter = 0; counter < constructors.length; ++counter) {
+            if(constructors[counter].getParameterTypes().length == 0) {
+                constructor = constructors[counter];
+                break;
             }
-            constructorInputParameters.add(currentObject);
         }
-        return constructors[constructors.length - 1].newInstance(constructorInputParameters.toArray());
+        if (constructor == null) {
+            throw new RuntimeException("No constructors with parameters");
+        }
+        Object result = constructor.newInstance();
+        Field[] fields = result.getClass().getDeclaredFields();
+        Object currentObject = null;
+        for (Field field : fields) {
+            System.out.println(field.getName() + " (" + field.getType().getSimpleName().toLowerCase() + ")");
+            currentObject = readObject(field);
+            field.setAccessible(true);
+            field.set(result, currentObject);
+        }
+        return result;
     }
 
-    private static Object readObject(Class classCurrent) {
-        switch (classCurrent.getSimpleName().toLowerCase()) {
+    private static Object readObject(Field field) {
+        Object currentObject = null;
+        switch (field.getType().getSimpleName().toLowerCase()) {
             case "string":
-                return console.nextLine();
+                currentObject = console.nextLine();
+                break;
             case "int":
             case "integer":
-                return Integer.getInteger(console.nextLine());
+                currentObject = console.nextInt();
+                console.nextLine();
+                break;
             case "long":
-                return Long.getLong(console.nextLine());
+                currentObject = console.nextLong();
+                console.nextLine();
+                break;
             case "double":
-                return Double.parseDouble(console.nextLine());
+                currentObject = console.nextDouble();
+                console.nextLine();
+                break;
             case "float":
-                return Float.parseFloat(console.nextLine());
+                currentObject = console.nextFloat();
+                console.nextLine();
+                break;
             case "char":
             case "character":
-                return console.next();
+                currentObject = console.next();
+                console.nextLine();
+                break;
         }
-        return null;
+        return currentObject;
     }
 
     private static void updateField(Object currentObject) throws IllegalAccessException {
-        System.out.println("Enter name of the field for changing:");
-        String nextLine = console.nextLine();
-        nextLine = console.nextLine();
-        for (int counter = 0; counter <  currentObject.getClass().getDeclaredFields().length; ++counter) {
-            if (currentObject.getClass().getDeclaredFields()[counter].getName().equals(nextLine)) {
-                System.out.println("Enter " + currentObject.getClass().getDeclaredFields()[counter].getType().getSimpleName() + " value:");
-                Object tempObject = readObject(currentObject.getClass());
-                currentObject.getClass().getDeclaredFields()[counter].setAccessible(true);
-                currentObject.getClass().getDeclaredFields()[counter]
-                        .set(currentObject.getClass().getDeclaredFields()[counter].getType(),
-                                tempObject);
+        String nextLine;
+        boolean isFieldEntered = false;
+        Field[] fields = currentObject.getClass().getDeclaredFields();
+        while (!isFieldEntered) {
+            System.out.println("Enter name of the field for changing:");
+            nextLine = console.nextLine();
+            for (Field field : fields) {
+                if (field.getName().equals(nextLine)) {
+                    Object fieldValue = readObject(field);
+                    field.setAccessible(true);
+                    field.set(currentObject, fieldValue);
+                    isFieldEntered = true;
+                }
             }
         }
     }
