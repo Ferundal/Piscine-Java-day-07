@@ -10,9 +10,15 @@ public class User {
     private Long id;
     @OrmColumn(name = "first_name", length = 10)
     private String firstName;
-    @OrmColumn(name = "first_name", length = 10)
+    @OrmColumn(name = "last_name", length = 10)
     private String lastName;
     @OrmColumn(name = "age")
     private Integer age;
+    @OrmColumn(name = "is_admin")
+    private boolean isAdmin;
+    @OrmColumn(name = "rating")
+    private Double rating;
+    @OrmColumn(name = "operations")
+    private Long operations;
 // setters /getters
 }
