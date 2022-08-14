@@ -1,5 +1,6 @@
 package edu.school21.cjettie.repositories;
 
+import edu.school21.cjettie.models.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,29 +34,55 @@ public class OrmManagerTest {
         ormManager = new OrmManager(dataSource);
     }
 
-
-
-    public static boolean isFilesSame(String path1, String path2)  {
-        try {
-            BufferedReader bf1 = new BufferedReader(new InputStreamReader(OrmManagerTest.class.getResource(path1).openStream()));
-            BufferedReader bf2 =new BufferedReader(new InputStreamReader(OrmManagerTest.class.getResource(path2).openStream()));
-
-            String line1 = "", line2 = "";
-            while ((line1 = bf1.readLine()) != null) {
-                line2 = bf2.readLine();
-                if (line2 == null || !line1.equals(line2)) {
-                    return false;
-                }
-            }
-            if (bf2.readLine() == null) {
-                return true;
-            }
-            else {
-                return false;
-            }
-        }
-        catch (IOException ioException) {
-            return false;
-        }
+    @Test
+    void test_find_by_id( ) {
+        User user = new User(null,
+                "Boba",
+                "Fett",
+                36,
+                false,
+                25D,
+                7L);
+        ormManager.save(user);
+        User userFromBase = ormManager.findById(0L, user.getClass());
+        Assertions.assertEquals(user, userFromBase);
     }
+    @Test
+    void test_save( ) {
+        User user1 = new User(null,
+                "Boba",
+                "Fett",
+                36,
+                false,
+                25D,
+                7L);
+        User user2 = new User(null,
+                "Boba",
+                "Fett",
+                36,
+                false,
+                25D,
+                7L);
+        ormManager.save(user1);
+        ormManager.save(user2);
+        Assertions.assertEquals(user1.getId(), 0);
+        Assertions.assertEquals(user2.getId(), 1);
+    }
+
+    @Test
+    void test_update( ) {
+        User user = new User(null,
+                "Boba",
+                "Fett",
+                36,
+                false,
+                25D,
+                7L);
+        ormManager.save(user);
+        user.setFirstName("Vader");
+        ormManager.update(user);
+        User updatedUser = ormManager.findById(user.getId(), user.getClass());
+        Assertions.assertEquals(user.getFirstName(), updatedUser.getFirstName());
+    }
+
 }
